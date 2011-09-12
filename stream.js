@@ -116,8 +116,15 @@ Stream.prototype = {
             }
         );
     },
-    print: function() {
-        this.walk( function ( x ) {
+    print: function( n ) {
+        var target;
+        if ( typeof n != 'undefined' ) {
+            target = this.take( n );
+        }
+        else {
+            target = this;
+        }
+        target.walk( function ( x ) {
             console.log( x );
         } );
     },
