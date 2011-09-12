@@ -1,20 +1,19 @@
 function Stream( head, tailPromise ) {
-    if ( typeof head == 'undefined' ) {
-        head = null;
+    if ( typeof head != 'undefined' ) {
+        this.headValue = head;
     }
-    else if ( typeof tailPromise == 'undefined' ) {
+    if ( typeof tailPromise == 'undefined' ) {
         tailPromise = function () {
             return new Stream();
         };
     }
-    this.headValue = head;
     this.tailPromise = tailPromise;
 }
 
 // TODO: write some unit tests
 Stream.prototype = {
     empty: function() {
-        return this.headValue === null;
+        return typeof this.headValue == 'undefined';
     },
     head: function() {
         if ( this.empty() ) {
