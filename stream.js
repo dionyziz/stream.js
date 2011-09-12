@@ -148,6 +148,34 @@ Stream.prototype = {
             }
         );
     },
+    drop: function( n ){
+        var self = this; 
+        
+        while ( n-- > 0 ) {
+          
+            if ( self.empty() ) {
+                return new Stream();
+            }
+
+          self = self.tail();
+        }
+        
+        // create clone/a contructor which accepts a stream?
+        return new Stream( self.headValue, self.tailPromise );
+    },
+    member: function( x ){
+        var self = this;
+
+        while( !self.empty() ) {
+            if ( self.head() == x ) {
+                return true;
+            }
+
+            self = self.tail();
+        }
+
+        return false;
+    },
     print: function( n ) {
         var target;
         if ( typeof n != 'undefined' ) {
