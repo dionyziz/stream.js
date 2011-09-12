@@ -70,6 +70,18 @@ Stream.prototype = {
             return self.tail().map( f );
         } );
     },
+    reduce: function ( aggregator, initial ) {
+        if ( this.empty() ) {
+            return initial;
+        }
+        // TODO: iterate
+        return this.tail().reduce( aggregator, aggregator( initial, this.head() ) );
+    },
+    sum: function () {
+        return this.reduce( function ( a, b ) {
+            return a + b;
+        }, 0 );
+    },
     walk: function( f ) {
         this.map( function ( x ) {
             f( x );
@@ -107,7 +119,6 @@ Stream.prototype = {
         if ( howmany == 0 ) {
             return new Stream();
         }
-        // TODO: optimize: iterate
         var self = this;
         return new Stream(
             this.head(),
