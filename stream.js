@@ -11,6 +11,7 @@ function Stream( head, tailPromise ) {
     this.tailPromise = tailPromise;
 }
 
+// TODO: write some unit tests
 Stream.prototype = {
     empty: function() {
         return this.headValue === null;
@@ -25,24 +26,40 @@ Stream.prototype = {
         if ( this.empty() ) {
             throw 'Cannot get the tail of the empty stream.';
         }
+        // TODO: memoize here
         return this.tailPromise();
     },
     item: function( n ) {
         if ( this.empty() ) {
             throw 'Cannot use item() on an empty stream.';
         }
-        if ( n == 0 ) {
-            return this.head();
+        var s = this;
+        while ( n != 0 ) {
+            --n;
+            try {
+                s = s.tail();
+            }
+            catch ( e ) {
+                throw 'Item index does not exist in stream.';
+            }
         }
-        // TODO: iteration
-        return this.tail().item( n - 1 );
+        try {
+            return s.head();
+        }
+        catch ( e ) {
+            throw 'Item index does not exist in stream.';
+        }
     },
     length: function() {
-        if ( this.empty() ) {
-            return 0;
+        // requires finite stream
+        var s = this;
+        var len = 0;
+
+        while ( !s.empty() ) {
+            ++len;
+            s = s.tail();
         }
-        // TODO: iteration
-        return 1 + this.tail().length();
+        return len;
     },
     add: function( s ) {
         return this.zip( function ( x, y ) {
@@ -71,6 +88,7 @@ Stream.prototype = {
         } );
     },
     reduce: function ( aggregator, initial ) {
+        // requires finite stream
         if ( this.empty() ) {
             return initial;
         }
@@ -78,17 +96,20 @@ Stream.prototype = {
         return this.tail().reduce( aggregator, aggregator( initial, this.head() ) );
     },
     sum: function () {
+        // requires finite stream
         return this.reduce( function ( a, b ) {
             return a + b;
         }, 0 );
     },
     walk: function( f ) {
+        // requires finite stream
         this.map( function ( x ) {
             f( x );
             return x;
         } ).force();
     },
     force: function() {
+        // requires finite stream
         var stream = this;
         while ( !stream.empty() ) {
             stream = stream.tail();
@@ -133,6 +154,7 @@ Stream.prototype = {
             target = this.take( n );
         }
         else {
+            // requires finite stream
             target = this;
         }
         target.walk( function ( x ) {
@@ -140,6 +162,7 @@ Stream.prototype = {
         } );
     },
     toString: function() {
+        // requires finite stream
         return '[stream head: ' + this.head() + '; tail: ' + this.tail() + ']';
     }
 };
