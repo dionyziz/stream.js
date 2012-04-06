@@ -19,6 +19,12 @@ describe('finite streams', function () {
     expect(duo.tail().head()).toBe(fin);
     expect(duo.tail().tail().empty()).toBeTruthy();
   });
+  
+  it('detects membership', function () {
+    var stooges = Stream.make("Curly", "Moe", "Larry");
+    expect(stooges.member("Curly")).toBeTruthy();
+    expect(stooges.member("Bobert")).toBeFalsy();
+  });
 });
 
 describe('range', function () {
@@ -47,7 +53,7 @@ describe('range', function () {
 });
 
 describe('standard functional functions', function () {
-  it('can take the first n elements', function () {
+  it('takes', function () {
     var naturals = Stream.range();
     var first_three_naturals = naturals.take(3);
     
@@ -60,9 +66,54 @@ describe('standard functional functions', function () {
       .toThrow('Item index does not exist in stream.')
   });
   
-  it('can be mapped', function () {
+  it('maps', function () {
+    var alphabet_ascii = Stream.range(97, 122);
+    var alphabet = alphabet_ascii.map(function (code) {
+      return String.fromCharCode(code);
+    });
     
+    expect(alphabet.head()).toBe('a');
+    expect(alphabet.head().tail()).toBe('b');
+    expect(alphabet.item(26)).toBe('z');
   });
-})
+  
+  it('filters', function () {
+    var first_ten_naturals = Stream.range(1, 10);
+    var first_five_evens = Stream.filter(function (n) {
+      return (n % 2 === 0);
+    });
+    
+    expect(first_five_evens.length()).toBe(5);
+    first_five_evens.map(function (n) {
+      expect(n / 2).toBe(Math.floor(n / 2));
+    });
+  });
+  
+  it('reduces', function () {
+    var first_twenty_naturals = Stream.range(1, 20);
+    var twentieth_triangular_number = first_twenty_naturals.reduce(function (prior, current) {
+      return prior + current;
+    }, 0);
+    
+    expect(twentieth_triangular_number).toBe(210);
+  });
+});
+
+describe('special numeric stream functions', function () {
+  it('sums', function () {
+    var first_twenty_naturals = Stream.range(1, 20);
+    var twentieth_triangular_number = first_twenty_naturals.sum();
+    expect(twentieth_triangular_number).toBe(210);
+  });
+  
+  it('scales', function () {
+    var first_ten_naturals = Stream.range(1, 10);
+    var first_ten_evens = first_ten_naturals.scale(2);
+    
+    expect(first_ten_evens.length()).toBe(10);
+    expect(first_ten_evens.head()).toBe(2);
+    expect(first_ten_evens.item(10)).toBe(20);
+  })
+});
 
 
