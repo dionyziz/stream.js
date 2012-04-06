@@ -66,6 +66,20 @@ describe('standard functional functions', function () {
       .toThrow('Item index does not exist in stream.')
   });
   
+  it('drops', function () {
+    oldComment = {};
+    oldestComment = {};
+    newComment = {};
+    newestComment = {};
+    var comments = Stream.make(oldestComment, oldComment, newComment, newestComment);
+    var newComments = comments.drop(2);
+    expect(newComments.length()).toBe(2);
+    expect(newComments.member(oldComment)).toBeFalsy();
+    expect(newComments.member(newComment)).toBeTruthy();
+    expect(newComments.head()).toBe(newComment);
+    expect(newComments.tail().head()).toBe(newestComment);
+  })
+  
   it('maps', function () {
     var alphabet_ascii = Stream.range(97, 122);
     var alphabet = alphabet_ascii.map(function (code) {
