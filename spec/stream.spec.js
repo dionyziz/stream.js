@@ -87,13 +87,13 @@ describe('standard functional functions', function () {
     });
     
     expect(alphabet.head()).toBe('a');
-    expect(alphabet.head().tail()).toBe('b');
-    expect(alphabet.item(26)).toBe('z');
+    expect(alphabet.tail().head()).toBe('b');
+    expect(alphabet.item(25)).toBe('z');
   });
   
   it('filters', function () {
     var first_ten_naturals = Stream.range(1, 10);
-    var first_five_evens = Stream.filter(function (n) {
+    var first_five_evens = first_ten_naturals.filter(function (n) {
       return (n % 2 === 0);
     });
     
@@ -126,7 +126,7 @@ describe('special numeric stream functions', function () {
     
     expect(first_ten_evens.length()).toBe(10);
     expect(first_ten_evens.head()).toBe(2);
-    expect(first_ten_evens.item(10)).toBe(20);
+    expect(first_ten_evens.item(9)).toBe(20);
   })
 });
 
