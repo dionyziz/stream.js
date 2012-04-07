@@ -1,0 +1,26 @@
+{
+  "name": "Streams",
+  "version": "1.0",
+  "description": "Lazy streams.",
+  "maintainers": [{
+    "name": "Dionysis Zindros",
+    "email": "dionyziz@gmail.com",
+    "web": "http://dionyziz.com/"
+  }],
+  "contributors": [{
+    "name": "Ryan Scheel",
+    "email": "ryan.havvy@gmail.com",
+    "web": "http://widget.mibbit.com/?channel=%23havvy&server=irc.mibbit.net"
+  },
+  {
+    "name": "Dionysis Zindros",
+    "email": "dionyziz@gmail.com",
+    "web": "http://dionyziz.com/"
+  }],
+  "main": "lib",
+  "directories": ["lib"],
+  "engines": {
+    "node": ">=0.4.0"
+  },
+  "keywords": ["stream", "lazy", "infinite", "data structure"]
+}
