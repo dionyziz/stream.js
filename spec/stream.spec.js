@@ -25,6 +25,38 @@ describe('finite streams', function () {
     expect(stooges.member("Curly")).toBeTruthy();
     expect(stooges.member("Bobert")).toBeFalsy();
   });
+
+  it("appends another stream", function() {
+    var s0 = new Stream();
+    var s1 = Stream.make(1);
+    var s2 = Stream.make(2, 3);
+    var appended_stream1 = s1.append(s2);
+    var appended_stream2 = s0.append(s2);
+    expect(appended_stream1.head()).toBe(1);
+    expect(appended_stream1.item(1)).toBe(2);
+    expect(appended_stream1.item(2)).toBe(3);
+    expect(appended_stream1.length()).toBe(3);
+    expect(s2).toBe( appended_stream2 );
+  });
+
+  it("compares 2 streams for equality", function() {
+    var s1 = Stream.make(1);
+    var s2 = Stream.make(1);
+    var s3 = Stream.make(2, 3);
+    expect(Stream.equals(s1,s2)).toBeTruthy;
+    expect(Stream.equals(s1,s3)).toBeFalsy;
+  });
+});
+
+describe('construction', function () {
+  it('can be created from array', function () {
+    var test_stream = Stream.fromArray([1, 2, 3]);
+
+    expect(test_stream.head()).toBe(1);
+    expect(test_stream.item(1)).toBe(2);
+    expect(test_stream.item(2)).toBe(3);
+    expect(test_stream.length()).toBe(3);
+  });
 });
 
 describe('range', function () {
@@ -105,11 +137,16 @@ describe('standard functional functions', function () {
   
   it('reduces', function () {
     var first_twenty_naturals = Stream.range(1, 20);
-    var twentieth_triangular_number = first_twenty_naturals.reduce(function (prior, current) {
+    var twentieth_triangular_number_w_initial = first_twenty_naturals.reduce(function (prior, current) {
       return prior + current;
     }, 0);
+
+    var twentieth_triangular_number = first_twenty_naturals.reduce(function (prior, current) {
+      return prior + current;
+    });
     
     expect(twentieth_triangular_number).toBe(210);
+    expect(twentieth_triangular_number_w_initial).toBe(210);
   });
 });
 
