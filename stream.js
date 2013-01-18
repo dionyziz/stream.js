@@ -17,20 +17,20 @@ Stream.prototype = {
     },
     head: function() {
         if ( this.empty() ) {
-            throw 'Cannot get the head of the empty stream.';
+            throw new Error('Cannot get the head of the empty stream.');
         }
         return this.headValue;
     },
     tail: function() {
         if ( this.empty() ) {
-            throw 'Cannot get the tail of the empty stream.';
+            throw new Error('Cannot get the tail of the empty stream.');
         }
         // TODO: memoize here
         return this.tailPromise();
     },
     item: function( n ) {
         if ( this.empty() ) {
-            throw 'Cannot use item() on an empty stream.';
+            throw new Error('Cannot use item() on an empty stream.');
         }
         var s = this;
         while ( n != 0 ) {
@@ -39,14 +39,14 @@ Stream.prototype = {
                 s = s.tail();
             }
             catch ( e ) {
-                throw 'Item index does not exist in stream.';
+                throw new Error('Item index does not exist in stream.');
             }
         }
         try {
             return s.head();
         }
         catch ( e ) {
-            throw 'Item index does not exist in stream.';
+            throw new Error('Item index does not exist in stream.');
         }
     },
     length: function() {
@@ -64,6 +64,18 @@ Stream.prototype = {
         return this.zip( function ( x, y ) {
             return x + y;
         }, s );
+    },
+    append: function ( stream ) {
+        if ( this.empty() ) {
+            return stream;
+        }
+        var self = this;
+        return new Stream(
+            self.head(),
+            function () {
+                return self.tail().append( stream );
+            }
+        );
     },
     zip: function( f, s ) {
         if ( this.empty() ) {
@@ -86,13 +98,29 @@ Stream.prototype = {
             return self.tail().map( f );
         } );
     },
-    reduce: function ( aggregator, initial ) {
+    concatmap: function ( f ) {
+        return this.reduce( function ( a, x ) {
+            return a.append( f(x) );
+        }, new Stream () );
+    },
+    reduce: function () {
+        var aggregator = arguments[0];
+        var initial, self;
+        if(arguments.length < 2) {
+            if(this.empty()) throw new TypeError("Array length is 0 and no second argument");
+            initial = this.head();
+            self = this.tail();
+        }
+        else {
+            initial = arguments[1];
+            self = this;
+        }
         // requires finite stream
-        if ( this.empty() ) {
+        if ( self.empty() ) {
             return initial;
         }
         // TODO: iterate
-        return this.tail().reduce( aggregator, aggregator( initial, this.head() ) );
+        return self.tail().reduce( aggregator, aggregator( initial, self.head() ) );
     },
     sum: function () {
         // requires finite stream
@@ -211,6 +239,12 @@ Stream.make = function( /* arguments */ ) {
         return Stream.make.apply( null, restArguments );
     } );
 };
+Stream.fromArray = function ( array ) {
+    if ( array.length == 0 ) {
+        return new Stream();
+    }
+    return new Stream( array[0], function() { return Stream.fromArray(array.slice(1)); } );
+};
 Stream.range = function ( low, high ) {
     if ( typeof low == 'undefined' ) {
         low = 1;
@@ -222,4 +256,17 @@ Stream.range = function ( low, high ) {
     return new Stream( low, function () {
         return Stream.range( low + 1, high );
     } );
+};
+Stream.equals = function ( stream1, stream2 ) {
+    if ( ! (stream1 instanceof Stream) ) return false;
+    if ( ! (stream2 instanceof Stream) ) return false;
+    if ( stream1.empty() && stream2.empty() ) {
+        return true;
+    }
+    if ( stream1.empty() || stream2.empty() ) {
+        return false;
+    }
+    if ( stream1.head() === stream2.head() ) {
+        return Stream.equals( stream1.tail(), stream2.tail() );
+    }
 };
