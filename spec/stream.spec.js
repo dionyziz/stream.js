@@ -57,6 +57,28 @@ describe('construction', function () {
     expect(test_stream.item(2)).toBe(3);
     expect(test_stream.length()).toBe(3);
   });
+
+  it('can be created with iterate', function () {
+    var powers_of_two = Stream.iterate(1, function (x) { return x * 2; });
+
+    expect(powers_of_two.item(1)).toBe(2);
+    expect(powers_of_two.item(2)).toBe(4);
+    expect(powers_of_two.item(3)).toBe(8);
+    expect(powers_of_two.item(10)).toBe(1024);
+  });
+
+  it('can be created by applying cycle to an array', function() {
+    var s = Stream.cycle([98, 99, 100]);
+
+    expect(s.head()).toBe(98);
+    expect(s.item(1)).toBe(99);
+    expect(s.item(2)).toBe(100);
+    expect(s.item(3)).toBe(98);
+    expect(s.item(4)).toBe(99);
+    expect(s.item(30)).toBe(98);
+    expect(s.item(31)).toBe(99);
+    expect(s.item(32)).toBe(100);
+  });
 });
 
 describe('range', function () {
@@ -148,6 +170,76 @@ describe('standard functional functions', function () {
     expect(twentieth_triangular_number).toBe(210);
     expect(twentieth_triangular_number_w_initial).toBe(210);
   });
+
+  it('dropsWhile', function () {
+    var some_numbers = Stream.make(-5, -8, -2, 34, 10, -2);
+    var remaining_numbers = some_numbers.dropWhile(function (x) { return x<0; });
+
+    expect(remaining_numbers.head()).toBe(34);
+    expect(remaining_numbers.item(1)).toBe(10);
+    expect(remaining_numbers.item(2)).toBe(-2);
+  });
+
+  it('dropsWhile on empty streams', function () {
+    var s = new Stream();
+    expect(s.dropWhile(function (x) { return x>0; }).empty()).toBeTruthy();
+  });
+
+  it('takesWhile', function () {
+    var some_numbers = Stream.make(-5, -8, -2, 34, 10, -2);
+    var remaining_numbers = some_numbers.takeWhile(function (x) { return x<0; });
+
+    expect(remaining_numbers.head()).toBe(-5);
+    expect(remaining_numbers.item(1)).toBe(-8);
+    expect(remaining_numbers.item(2)).toBe(-2);
+  });
+
+  it('takesWhile on empty streams', function () {
+    var s = new Stream();
+    expect(s.takeWhile(function (x) { return x>0; }).empty()).toBeTruthy();
+  });
+
+  it('zips', function () {
+    var a = Stream.make(4, 8, 12, 23, 5);
+    var b = Stream.make(2, 10, 5, 99, 100);
+    var c = Stream.make(-5, 63, 12, 43, 2);
+
+    var biggest_of_two = a.zip( Math.max, b );
+    var sum_of_four = a.zip( function(w, x, y, z) {
+      return w + x + y + z;
+    }, b, c, a );
+
+    expect(biggest_of_two.head()).toBe(4);
+    expect(biggest_of_two.item(1)).toBe(10);
+    expect(biggest_of_two.item(2)).toBe(12);
+    expect(biggest_of_two.item(3)).toBe(99);
+    expect(biggest_of_two.item(4)).toBe(100);
+
+    expect(sum_of_four.head()).toBe(5);
+    expect(sum_of_four.item(1)).toBe(89);
+    expect(sum_of_four.item(2)).toBe(41);
+    expect(sum_of_four.item(3)).toBe(188);
+    expect(sum_of_four.item(4)).toBe(112);
+  });
+
+  it('zips streams of different lengths', function () {
+    var a = Stream.make(4, 8, 12, 16);
+    var b = Stream.make(1, 12, 42);
+
+    var biggest_of_two1 = a.zip(Math.max, b);
+    var biggest_of_two2 = b.zip(Math.max, a);
+
+    expect(biggest_of_two1.length()).toBe(3);
+    expect(biggest_of_two2.length()).toBe(3);
+
+    expect(biggest_of_two1.head()).toBe(4);
+    expect(biggest_of_two1.item(1)).toBe(12);
+    expect(biggest_of_two1.item(2)).toBe(42);
+
+    expect(biggest_of_two2.head()).toBe(4);
+    expect(biggest_of_two2.item(1)).toBe(12);
+    expect(biggest_of_two2.item(2)).toBe(42);
+  });
 });
 
 describe('special numeric stream functions', function () {
@@ -166,5 +258,4 @@ describe('special numeric stream functions', function () {
     expect(first_ten_evens.item(9)).toBe(20);
   })
 });
-
 
