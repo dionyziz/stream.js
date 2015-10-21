@@ -81,7 +81,7 @@ describe('construction', function () {
   });
 
   it('Can be created of an element', function() {
-    var s = Stream.makeOf('element');
+    var s = Stream.repeat('element');
 
     expect(s.head()).toBe('element');
     expect(s.item(1)).toBe('element');
