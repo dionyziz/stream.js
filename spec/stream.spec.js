@@ -79,6 +79,15 @@ describe('construction', function () {
     expect(s.item(31)).toBe(99);
     expect(s.item(32)).toBe(100);
   });
+
+  it('Can be created of an element', function() {
+    var s = Stream.repeat('element');
+
+    expect(s.head()).toBe('element');
+    expect(s.item(1)).toBe('element');
+    expect(s.item(2)).toBe('element');
+    expect(s.item(1024)).toBe('element');
+  });
 });
 
 describe('range', function () {
