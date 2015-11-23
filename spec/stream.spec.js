@@ -1,5 +1,7 @@
 /* globals describe, it, expect */
 
+"use strict";
+
 var Stream = require('../lib/index.js');
 
 describe('finite streams', function () {
