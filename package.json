@@ -27,6 +27,9 @@
     }
   ],
   "main": "lib/index.js",
+  "scripts": {
+    "test": "jasmine"
+  },
   "directories": {
     "lib": "lib"
   },
@@ -38,5 +41,8 @@
     "lazy",
     "infinite",
     "data structure"
-  ]
+  ],
+  "devDependencies": {
+    "jasmine": "^2.3.2"
+  }
 }
