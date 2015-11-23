@@ -34,7 +34,7 @@
     "lib": "lib"
   },
   "engines": {
-    "node": ">=0.4.0"
+    "node": ">=0.10.0"
   },
   "keywords": [
     "stream",
