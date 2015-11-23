@@ -1,5 +1,5 @@
 sudo: false
-# travis
 language: node_js
 node_js:
   - "stable"
+  - "0.4"
