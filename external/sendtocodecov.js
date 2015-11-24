@@ -8,7 +8,6 @@ fs.readFile('coverage/coverage.json', 'utf8', function(err, data) {
 	if(err) // coverage data not found/read
 		console.error(err), process.exit(1);
 	pipeToCodeCov(data);
-	process.exit(0);
 });
 
 function pipeToCodeCov(json) {
