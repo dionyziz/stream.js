@@ -24,6 +24,11 @@
       "name": "Dionysis Zindros",
       "email": "dionyziz@gmail.com",
       "web": "http://dionyziz.com/"
+    },
+    {
+      "name": "Jon Ege Ronnenberg",
+      "email": "jon.ronnenberg+stream.js@gmail.com",
+      "web": "https://www.google.com/search?q=dotnetcarpenter"
     }
   ],
   "main": "lib/index.js",
