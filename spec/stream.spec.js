@@ -2,7 +2,7 @@
 
 "use strict";
 
-var Stream = require('../lib/index.js');
+var Stream = require('../lib/index');
 
 describe('finite streams', function () {
   it('can be made and accessess', function () {

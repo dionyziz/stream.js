@@ -28,7 +28,7 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js"
   },
   "directories": {
     "lib": "lib"
@@ -43,6 +43,7 @@
     "data structure"
   ],
   "devDependencies": {
+    "istanbul": "^0.4.0",
     "jasmine": "^2.3.2"
   }
 }
