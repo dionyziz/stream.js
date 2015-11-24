@@ -33,7 +33,7 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && cat coverage/coverage.json | node node_modules/codecov.io/bin/codecov.io.js"
+    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js"
   },
   "directories": {
     "lib": "lib"
