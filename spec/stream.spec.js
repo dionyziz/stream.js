@@ -271,4 +271,3 @@ describe('special numeric stream functions', function () {
     expect(first_ten_evens.item(9)).toBe(20);
   })
 });
-
