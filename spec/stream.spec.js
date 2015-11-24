@@ -1,3 +1,7 @@
+/* globals describe, it, expect */
+
+"use strict";
+
 var Stream = require('../lib/index.js');
 
 describe('finite streams', function () {
@@ -126,14 +130,14 @@ describe('standard functional functions', function () {
     expect(first_three_naturals.item(1)).toBe(2);
     expect(first_three_naturals.item(2)).toBe(3);
     expect(function () {first_three_naturals.item(3);})
-      .toThrow('Item index does not exist in stream.')
+      .toThrow()
   });
   
   it('drops', function () {
-    oldComment = {};
-    oldestComment = {};
-    newComment = {};
-    newestComment = {};
+    var oldComment = {};
+    var oldestComment = {};
+    var newComment = {};
+    var newestComment = {};
     var comments = Stream.make(oldestComment, oldComment, newComment, newestComment);
     var newComments = comments.drop(2);
     expect(newComments.length()).toBe(2);
