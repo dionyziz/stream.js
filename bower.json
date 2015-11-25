@@ -1,0 +1,30 @@
+{
+  "name": "stream.js",
+  "description": "Lazy streams.",
+  "main": "stream.js",
+  "authors": [
+    "[\"Dionysis Zindros <dionyziz@gmail.com>\"",
+    "\"Jon Ege Ronnenberg <jon.ronnenberg+stream.js@gmail.com>\"",
+    "\"Ryan Scheel <ryan.havvy@gmail.com>\"]"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "stream",
+    "lazy",
+    "infinite",
+    "data",
+    "structure"
+  ],
+  "homepage": "http://streamjs.org/",
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "spec",
+    "external/",
+    "lib/",
+    "package.json"
+  ]
+}
