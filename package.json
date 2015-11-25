@@ -24,11 +24,16 @@
       "name": "Dionysis Zindros",
       "email": "dionyziz@gmail.com",
       "web": "http://dionyziz.com/"
+    },
+    {
+      "name": "Jon Ege Ronnenberg",
+      "email": "jon.ronnenberg+stream.js@gmail.com",
+      "web": "https://www.google.com/search?q=dotnetcarpenter"
     }
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js"
   },
   "directories": {
     "lib": "lib"
@@ -43,6 +48,8 @@
     "data structure"
   ],
   "devDependencies": {
+    "codecov.io": "^0.1.6",
+    "istanbul": "^0.4.0",
     "jasmine": "^2.3.2"
   }
 }

@@ -2,7 +2,7 @@
 
 "use strict";
 
-var Stream = require('../lib/index.js');
+var Stream = require('../lib/index');
 
 describe('finite streams', function () {
   it('can be made and accessess', function () {
@@ -271,4 +271,3 @@ describe('special numeric stream functions', function () {
     expect(first_ten_evens.item(9)).toBe(20);
   })
 });
-
