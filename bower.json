@@ -22,8 +22,8 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "spec",
+    "external/",
+    "lib/"
   ]
 }
