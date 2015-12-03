@@ -27,7 +27,12 @@ function Stream( head, tailPromise ) {
             return new Stream();
         };
     }
-    this.tailPromise = new Lazy(tailPromise);
+
+    if (typeof tailPromsie == 'function') {
+        tailPromise = new Lazy(tailPromise);
+    }
+
+    this.tailPromise = tailPromise;
 }
 
 // TODO: write some unit tests
