@@ -1,5 +1,23 @@
 "use strict";
 
+function Lazy(func) {
+    this.has_evaluated = false;
+    this.func = func;
+    this.value = value;
+}
+
+Lazy.prototype = {
+    eval: function() {
+        if (this.has_evaluated) {
+            return this.value;
+        }
+
+        this.value = this.func();
+        this.has_evaluated = true;
+        return this.value;
+    }
+};
+
 function Stream( head, tailPromise ) {
     if ( typeof head != 'undefined' ) {
         this.headValue = head;
@@ -28,7 +46,7 @@ Stream.prototype = {
             throw new Error('Cannot get the tail of the empty stream.');
         }
         // TODO: memoize here
-        return this.tailPromise();
+        return this.tailPromise.eval();
     },
     item: function( n ) {
         if ( this.empty() ) {
@@ -271,4 +289,19 @@ Stream.equals = function ( stream1, stream2 ) {
     if ( stream1.head() === stream2.head() ) {
         return Stream.equals( stream1.tail(), stream2.tail() );
     }
+};
+
+Stream.iterate = function ( x, f ) {
+  return new Stream( x, function () {
+    return Stream.iterate( f( x ), f);
+  } );
+};
+Stream.cycle = function( array ) {
+  var promise_generator = function( array, index) {
+    if( index >= array.length ) index = 0;
+    return function() {
+      return new Stream( array[index], promise_generator(array, index + 1 ) );
+    };
+  };
+  return new Stream( array[0], promise_generator( array, 1 ) );
 };
