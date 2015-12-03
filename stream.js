@@ -3,7 +3,7 @@
 function Lazy(func) {
     this.has_evaluated = false;
     this.func = func;
-    this.value = value;
+    this.value = null;
 }
 
 Lazy.prototype = {
