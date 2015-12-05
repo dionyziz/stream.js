@@ -1,16 +1,17 @@
-source = stream.js
+DIR_NAME:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+source  :=$(DIR_NAME)/stream.js
 minified = stream.min.js
 
 minify:
-		@echo "> Minifying..."
-		@rm -f $(minified)
-		@curl -s \
-				-X POST \
-				--data-urlencode 'compilation_level=SIMPLE_OPTIMIZATIONS' \
-				--data-urlencode 'output_format=text' \
-				--data-urlencode 'output_info=compiled_code' \
-				--data-urlencode 'js_code@$(source)' \
-				-o $(minified) \
-				http://closure-compiler.appspot.com/compile
+	@echo "> Minifying..."
+	@rm -f $(minified)
+	@curl -s \
+			-X POST \
+			--data-urlencode 'compilation_level=SIMPLE_OPTIMIZATIONS' \
+			--data-urlencode 'output_format=text' \
+			--data-urlencode 'output_info=compiled_code' \
+			--data-urlencode 'js_code@$(source)' \
+			-o $(minified) \
+			http://closure-compiler.appspot.com/compile
 
 .PHONY: minify
