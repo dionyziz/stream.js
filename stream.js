@@ -8,7 +8,7 @@ function Lazy(func) {
 
 Lazy.prototype = {
     eval: function() {
-        if (this.has_evaluated) {
+        if ( this.has_evaluated ) {
             return this.value;
         }
 
@@ -28,7 +28,7 @@ function Stream( head, tailPromise ) {
         };
     }
 
-    if (typeof tailPromsie == 'function') {
+    if ( typeof tailPromsie == 'function' ) {
         tailPromise = new Lazy(tailPromise);
     }
 
