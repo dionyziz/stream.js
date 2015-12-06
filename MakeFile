@@ -12,6 +12,6 @@ minify:
 			--data-urlencode 'output_info=compiled_code' \
 			--data-urlencode 'js_code@$(source)' \
 			-o $(minified) \
-			http://closure-compiler.appspot.com/compile
+			https://closure-compiler.appspot.com/compile
 
 .PHONY: minify
