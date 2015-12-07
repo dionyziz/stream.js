@@ -37,6 +37,9 @@
     "build:browser": "browserify lib/stream.js --standalone Stream --outfile stream.js",
     "minify": "browserify lib/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]"
   },
+  "bin": {
+    "zip": "node_modules/.bin/bestzip"
+  },
   "directories": {
     "lib": "lib"
   },
@@ -50,6 +53,7 @@
     "data structure"
   ],
   "devDependencies": {
+    "bestzip": "^1.1.2",
     "browserify": "^12.0.1",
     "codecov.io": "^0.1.6",
     "istanbul": "^0.4.0",
