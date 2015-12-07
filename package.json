@@ -35,10 +35,8 @@
   "scripts": {
     "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js",
     "build:browser": "browserify lib/stream.js --standalone Stream --outfile stream.js",
-    "minify": "browserify lib/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]"
-  },
-  "bin": {
-    "zip": "node_modules/.bin/bestzip"
+    "minify": "browserify lib/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]",
+    "zip": "bestzip --"    
   },
   "directories": {
     "lib": "lib"
