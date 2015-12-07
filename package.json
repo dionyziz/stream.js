@@ -31,9 +31,11 @@
       "web": "https://www.google.com/search?q=dotnetcarpenter"
     }
   ],
-  "main": "lib/index.js",
+  "main": "lib/stream.js",
   "scripts": {
-    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js"
+    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js",
+    "build:browser": "browserify lib/stream.js --standalone Stream --outfile stream.js",
+    "minify": "browserify lib/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]"
   },
   "directories": {
     "lib": "lib"
@@ -48,8 +50,10 @@
     "data structure"
   ],
   "devDependencies": {
+    "browserify": "^12.0.1",
     "codecov.io": "^0.1.6",
     "istanbul": "^0.4.0",
-    "jasmine": "^2.3.2"
+    "jasmine": "^2.4.1",
+    "minifyify": "^7.1.0"
   }
 }
