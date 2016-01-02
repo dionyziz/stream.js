@@ -1,3 +1,4 @@
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Stream = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 function Stream( head, tailPromise ) {
@@ -79,17 +80,26 @@ Stream.prototype = {
             }
         );
     },
-    zip: function( f, s ) {
-        if ( this.empty() ) {
-            return s;
-        }
-        if ( s.empty() ) {
-            return this;
-        }
+    zip: function( /* arguments */ ) {
+        var args = Array.prototype.slice.call( arguments, 0 )
+        var f = args[0];
+        args.shift();
+        var streams = [this].concat( args );
         var self = this;
-        return new Stream( f( s.head(), this.head() ), function () {
-            return self.tail().zip( f, s.tail() );
-        } );
+
+        // If any streams are empty, return an empty stream
+        if( streams.filter( function(x) { return x.empty(); } ).length > 0 ) {
+          return new Stream();
+        }
+        return new Stream(
+          f.apply( null, streams.map( function(x) { return x.head(); }) ),
+          function () {
+            var tail = self.tail();
+            return tail.zip.apply( tail, [f].concat(
+              args.map( function (x) { return x.tail(); } )
+            ) );
+          }
+        );
     },
     map: function( f ) {
         if ( this.empty() ) {
@@ -177,7 +187,18 @@ Stream.prototype = {
             }
         );
     },
-    drop: function( n ){
+    takeWhile: function( condition ) {
+      if(this.empty()) return new Stream();
+      var self = this, result = [];
+
+      while( condition( self.head() ) ) {
+        result.push( self.head() );
+        self = self.tail();
+      }
+
+      return Stream.fromArray(result);
+    },
+    drop: function( n ) {
         var self = this; 
         
         while ( n-- > 0 ) {
@@ -192,7 +213,14 @@ Stream.prototype = {
         // create clone/a contructor which accepts a stream?
         return new Stream( self.headValue, self.tailPromise );
     },
-    member: function( x ){
+    dropWhile: function( condition ) {
+      if(this.empty()) return new Stream();
+      var self = this;
+
+      while( condition( self.head() ) ) self = self.tail();
+      return new Stream( self.headValue, self.tailPromise );
+    },
+    member: function( x ) {
         var self = this;
 
         while( !self.empty() ) {
@@ -224,13 +252,19 @@ Stream.prototype = {
     }
 };
 
+Stream.continually = function( callback ) {
+    return Stream.iterate( callback(), callback );
+};
 Stream.makeOnes = function() {
-    return new Stream( 1, Stream.makeOnes );
+    return Stream.repeat( 1 );
 };
 Stream.makeNaturalNumbers = function() {
     return new Stream( 1, function () {
         return Stream.makeNaturalNumbers().add( Stream.makeOnes() );
     } );
+};
+Stream.repeat = function( element ) {
+    return Stream.continually( function() { return element; } );
 };
 Stream.make = function( /* arguments */ ) {
     if ( arguments.length == 0 ) {
@@ -272,3 +306,22 @@ Stream.equals = function ( stream1, stream2 ) {
         return Stream.equals( stream1.tail(), stream2.tail() );
     }
 };
+Stream.iterate = function ( x, f ) {
+  return new Stream( x, function () {
+    return Stream.iterate( f( x ), f);
+  } );
+};
+Stream.cycle = function( array ) {
+  var promise_generator = function( array, index) {
+    if( index >= array.length ) index = 0;
+    return function() {
+      return new Stream( array[index], promise_generator(array, index + 1 ) );
+    };
+  };
+  return new Stream( array[0], promise_generator( array, 1 ) );
+};
+
+module.exports = Stream;
+
+},{}]},{},[1])(1)
+});

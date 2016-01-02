@@ -1,4 +1,5 @@
 .project
+.vscode
 node_modules
 coverage
 stream.min.js
