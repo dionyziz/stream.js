@@ -112,6 +112,26 @@ describe('construction', function () {
     s.tail().head();
     expect(calls, 1);
   });
+
+  it('Doesn\'t memoize when we ask for Eager', function() {
+    var calls = 0;
+    function count_calls() {
+      calls++;
+      return new Stream.Eager(1, count_calls);
+    }
+
+    var s = new Stream(1, count_calls);
+
+    s.head();
+    expect(calls, 0);
+
+    // Evaluating tail() should call the function each time
+    s.tail().head();
+    expect(calls, 1);
+
+    s.tail().head();
+    expect(calls,2);
+  });
 });
 
 describe('range', function () {
