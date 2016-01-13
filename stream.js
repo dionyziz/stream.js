@@ -1,20 +1,64 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Stream = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-function Stream( head, tailPromise ) {
+function Lazy( func ) {
+    this.has_evaluated = false;
+    this.func = func;
+    this.value = null;
+}
+
+Lazy.prototype = {
+    eval: function() {
+        if ( this.has_evaluated ) {
+            return this.value;
+        }
+
+        this.value = this.func();
+        this.has_evaluated = true;
+        return this.value;
+    }
+};
+
+function Eager( func ) {
+    this.func = func;
+}
+
+Eager.prototype = {
+    eval: function() {
+        return this.func();
+    }
+}
+
+function Stream( head, tailPromise, wrapper ) {
+    if ( typeof wrapper == 'undefined' ) {
+        wrapper = Lazy;
+    }
+    
+    this.wrapper = wrapper;
+
     if ( typeof head != 'undefined' ) {
         this.headValue = head;
     }
     if ( typeof tailPromise == 'undefined' ) {
         tailPromise = function () {
-            return new Stream();
+            return this.create();
         };
     }
+
+    if ( typeof tailPromise == 'function' ) {
+        tailPromise = new wrapper(tailPromise);
+    }
+
     this.tailPromise = tailPromise;
 }
 
 // TODO: write some unit tests
 Stream.prototype = {
+    // This makes it easier to avoid passing around the explicit wrapper
+    // when making new streams below
+    create: function(head, tailPromise) {
+        return new Stream( head, tailPromise, this.wrapper );
+    },
     empty: function() {
         return typeof this.headValue == 'undefined';
     },
@@ -28,8 +72,8 @@ Stream.prototype = {
         if ( this.empty() ) {
             throw new Error('Cannot get the tail of the empty stream.');
         }
-        // TODO: memoize here
-        return this.tailPromise();
+
+        return this.tailPromise.eval();
     },
     item: function( n ) {
         if ( this.empty() ) {
@@ -73,7 +117,7 @@ Stream.prototype = {
             return stream;
         }
         var self = this;
-        return new Stream(
+        return this.create(
             self.head(),
             function () {
                 return self.tail().append( stream );
@@ -106,14 +150,14 @@ Stream.prototype = {
             return this;
         }
         var self = this;
-        return new Stream( f( this.head() ), function () {
+        return this.create( f( this.head() ), function () {
             return self.tail().map( f );
         } );
     },
     concatmap: function ( f ) {
         return this.reduce( function ( a, x ) {
             return a.append( f(x) );
-        }, new Stream () );
+        }, this.create() );
     },
     reduce: function () {
         var aggregator = arguments[0];
@@ -166,7 +210,7 @@ Stream.prototype = {
         var h = this.head();
         var t = this.tail();
         if ( f( h ) ) {
-            return new Stream( h, function () {
+            return this.create( h, function () {
                 return t.filter( f );
             } );
         }
@@ -177,10 +221,10 @@ Stream.prototype = {
             return this;
         }
         if ( howmany == 0 ) {
-            return new Stream();
+            return this.create();
         }
         var self = this;
-        return new Stream(
+        return this.create(
             this.head(),
             function () {
                 return self.tail().take( howmany - 1 );
@@ -204,14 +248,14 @@ Stream.prototype = {
         while ( n-- > 0 ) {
           
             if ( self.empty() ) {
-                return new Stream();
+                return this.create();
             }
 
           self = self.tail();
         }
         
         // create clone/a contructor which accepts a stream?
-        return new Stream( self.headValue, self.tailPromise );
+        return this.create( self.headValue, self.tailPromise );
     },
     dropWhile: function( condition ) {
       if(this.empty()) return new Stream();
@@ -252,20 +296,33 @@ Stream.prototype = {
     }
 };
 
+function _continually( callback, wrapper ) {
+    return Stream.iterate( callback(), callback, wrapper );
+}
+
 Stream.continually = function( callback ) {
-    return Stream.iterate( callback(), callback );
-};
-Stream.makeOnes = function() {
-    return Stream.repeat( 1 );
-};
-Stream.makeNaturalNumbers = function() {
-    return new Stream( 1, function () {
-        return Stream.makeNaturalNumbers().add( Stream.makeOnes() );
-    } );
-};
+    return _continually( callback, Lazy );
+}
+
+Stream.continuallyEager = function( callback ) {
+    return _continually( callback, Eager );
+}
+
 Stream.repeat = function( element ) {
     return Stream.continually( function() { return element; } );
 };
+
+Stream.makeOnes = function() {
+    return Stream.repeat( 1 );
+};
+
+Stream.makeNaturalNumbers = function() {
+    return new Stream( 1, function () {
+        var nats = Stream.makeNaturalNumbers();
+        return nats.add( Stream.makeOnes() );
+    } );
+};
+
 Stream.make = function( /* arguments */ ) {
     if ( arguments.length == 0 ) {
         return new Stream();
@@ -275,12 +332,16 @@ Stream.make = function( /* arguments */ ) {
         return Stream.make.apply( null, restArguments );
     } );
 };
+
+// This is Eager-only, since keeping around a Lazy for each element would
+// just copy array needlessly
 Stream.fromArray = function ( array ) {
     if ( array.length == 0 ) {
         return new Stream();
     }
-    return new Stream( array[0], function() { return Stream.fromArray(array.slice(1)); } );
+    return new Stream( array[0], function() { return Stream.fromArray(array.slice(1), Eager ); }, Eager );
 };
+
 Stream.range = function ( low, high ) {
     if ( typeof low == 'undefined' ) {
         low = 1;
@@ -291,8 +352,9 @@ Stream.range = function ( low, high ) {
     // if high is undefined, there won't be an upper bound
     return new Stream( low, function () {
         return Stream.range( low + 1, high );
-    } );
+    });
 };
+
 Stream.equals = function ( stream1, stream2 ) {
     if ( ! (stream1 instanceof Stream) ) return false;
     if ( ! (stream2 instanceof Stream) ) return false;
@@ -306,22 +368,43 @@ Stream.equals = function ( stream1, stream2 ) {
         return Stream.equals( stream1.tail(), stream2.tail() );
     }
 };
-Stream.iterate = function ( x, f ) {
+
+function _iterate( x, f, wrapper ) {
   return new Stream( x, function () {
-    return Stream.iterate( f( x ), f);
-  } );
+    return _iterate( f( x ), f, wrapper );
+  }, wrapper );
 };
+
+Stream.iterate = function( x, f ) {
+    return _iterate( x, f, Lazy );
+}
+
+Stream.iterateEager = function( x, f ) {
+    return _iterate( x, f, Eager );
+}
+
+// Like fromArray, this is Eager-only since it would needlessly copy
+// parts of the array if Lazy was used
 Stream.cycle = function( array ) {
   var promise_generator = function( array, index) {
     if( index >= array.length ) index = 0;
     return function() {
-      return new Stream( array[index], promise_generator(array, index + 1 ) );
+      return new Stream( array[index], promise_generator(array, index + 1 ), Eager );
     };
   };
-  return new Stream( array[0], promise_generator( array, 1 ) );
+  return new Stream( array[0], promise_generator( array, 1 ), Eager );
 };
 
-module.exports = Stream;
+/*
+ * Since Lazy and Eager aren't exported to the outside, this is used to make
+ * eager streams.
+ */
+function EagerStream( head, tailPromise ) {
+    return Stream.call( this, head, tailPromise, Eager );
+}
 
+Stream.Eager = EagerStream;
+
+module.exports = Stream;
 },{}]},{},[1])(1)
 });
