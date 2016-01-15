@@ -2,5 +2,3 @@
 .vscode
 node_modules
 coverage
-stream.min.js
-stream.min.js.map

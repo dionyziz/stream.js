@@ -1,7 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Stream = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-function Lazy( func ) {
+function Lazy(func) {
     this.has_evaluated = false;
     this.func = func;
     this.value = null;
@@ -19,7 +19,7 @@ Lazy.prototype = {
     }
 };
 
-function Eager( func ) {
+function Eager(func) {
     this.func = func;
 }
 
@@ -135,6 +135,7 @@ Stream.prototype = {
         if( streams.filter( function(x) { return x.empty(); } ).length > 0 ) {
           return new Stream();
         }
+
         return new Stream(
           f.apply( null, streams.map( function(x) { return x.head(); }) ),
           function () {
@@ -242,7 +243,7 @@ Stream.prototype = {
 
       return Stream.fromArray(result);
     },
-    drop: function( n ) {
+    drop: function( n ){
         var self = this; 
         
         while ( n-- > 0 ) {
@@ -264,7 +265,7 @@ Stream.prototype = {
       while( condition( self.head() ) ) self = self.tail();
       return new Stream( self.headValue, self.tailPromise );
     },
-    member: function( x ) {
+    member: function( x ){
         var self = this;
 
         while( !self.empty() ) {
@@ -313,7 +314,7 @@ Stream.repeat = function( element ) {
 };
 
 Stream.makeOnes = function() {
-    return Stream.repeat( 1 );
+    return new Stream( 1, Stream.makeOnes );
 };
 
 Stream.makeNaturalNumbers = function() {
@@ -403,8 +404,10 @@ function EagerStream( head, tailPromise ) {
     return Stream.call( this, head, tailPromise, Eager );
 }
 
-Stream.Eager = EagerStream;
+EagerStream.prototype = Stream.prototype;
 
+Stream.Eager = EagerStream;
 module.exports = Stream;
+
 },{}]},{},[1])(1)
 });
