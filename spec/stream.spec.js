@@ -235,7 +235,12 @@ describe('standard functional functions', function () {
 
   it('dropsWhile on empty streams', function () {
     var s = new Stream();
-    expect(s.dropWhile(function (x) { return x>0; }).empty()).toBeTruthy();
+    expect(s.dropWhile(function (x) { return true; }).empty()).toBeTruthy();
+  });
+
+  it('dropsWhile on exhausted streams', function () {
+    var some_numbers = Stream.make(-5, -8, -2, 34, 10, -2);
+    expect(some_numbers.dropWhile(function (x) { return true; }).empty()).toBeTruthy();
   });
 
   it('takesWhile', function () {
