@@ -33,7 +33,7 @@ function Stream( head, tailPromise, wrapper ) {
     if ( typeof wrapper == 'undefined' ) {
         wrapper = Lazy;
     }
-    
+
     this.wrapper = wrapper;
 
     if ( typeof head != 'undefined' ) {
@@ -244,26 +244,32 @@ Stream.prototype = {
       return Stream.fromArray(result);
     },
     drop: function( n ){
-        var self = this; 
-        
+        var self = this;
+
         while ( n-- > 0 ) {
-          
+
             if ( self.empty() ) {
                 return this.create();
             }
 
-          self = self.tail();
+            self = self.tail();
         }
-        
+
         // create clone/a contructor which accepts a stream?
         return this.create( self.headValue, self.tailPromise );
     },
     dropWhile: function( condition ) {
-      if(this.empty()) return new Stream();
-      var self = this;
+        if(this.empty()) return new Stream();
+        var self = this;
 
-      while( condition( self.head() ) ) self = self.tail();
-      return new Stream( self.headValue, self.tailPromise );
+        while( condition( self.head() ) ) {
+          self = self.tail();
+
+          if ( self.empty() ) {
+              return self;
+          }
+        }
+        return new Stream( self.headValue, self.tailPromise );
     },
     member: function( x ){
         var self = this;
