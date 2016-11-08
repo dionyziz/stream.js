@@ -1,6 +1,6 @@
 {
   "name": "stream.js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Lazy streams.",
   "repository": {
     "git": "https://github.com/dionyziz/stream.js"
@@ -28,18 +28,18 @@
     {
       "name": "Jon Ege Ronnenberg",
       "email": "jon.ronnenberg+stream.js@gmail.com",
-      "web": "https://www.google.com/search?q=dotnetcarpenter"
+      "web": "https://keybase.io/dotnetcarpenter"
     }
   ],
-  "main": "lib/stream.js",
+  "main": "src/stream.js",
   "scripts": {
-    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js && node external/sendtocodecov.js",
-    "build:browser": "browserify lib/stream.js --standalone Stream --outfile stream.js",
-    "minify": "browserify lib/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]",
-    "zip": "bestzip --"    
+    "test": "istanbul cover jasmine && node external/sendtocodecov.js",
+    "build:browser": "browserify src/stream.js --standalone Stream --outfile stream.js",
+    "minify": "browserify src/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]",
+    "zip": "bestzip --"
   },
   "directories": {
-    "lib": "lib"
+    "lib": "src"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -52,7 +52,7 @@
   ],
   "devDependencies": {
     "bestzip": "^1.1.2",
-    "browserify": "^12.0.1",
+    "browserify": "^13.1.1",
     "codecov.io": "^0.1.6",
     "istanbul": "^0.4.0",
     "jasmine": "^2.4.1",
