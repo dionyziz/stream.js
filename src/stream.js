@@ -39,6 +39,10 @@ function Stream(head, tailPromise, wrapper) {
     this.headValue = head;
   }
   if (typeof tailPromise == 'undefined') {
+    // Ignore the next function from coverage as it is never called.
+    // Instead we cover this.create() to ensure that tailPromise
+    // contains the value we want.
+    /* istanbul ignore next */
     tailPromise = function() {
       return this.create();
     };

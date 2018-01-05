@@ -45,8 +45,25 @@ describe('finite streams', () => {
     const s1 = Stream.make(1);
     const s2 = Stream.make(1);
     const s3 = Stream.make(2, 3);
+    const empty = Stream.make();
     expect(Stream.equals(s1, s2)).toBeTruthy();
     expect(Stream.equals(s1, s3)).toBeFalsy();
+    expect(Stream.equals(s1, 'othervalue')).toBeFalsy();
+    expect(Stream.equals('othervalue', s1)).toBeFalsy();
+    expect(Stream.equals(s1, empty)).toBeFalsy();
+    expect(Stream.equals(empty, s1)).toBeFalsy();
+  });
+
+  it('makes ones', () => {
+    const s = Stream.makeOnes();
+    expect(s.head()).toBe(1);
+  });
+
+  it('makes natural numbers', () => {
+    const s = Stream.makeNaturalNumbers();
+    expect(s.head()).toBe(1);
+    expect(s.tail().head()).toBe(2);
+    expect(s.item(50)).toBe(51);
   });
 });
 
@@ -169,6 +186,9 @@ describe('standard functional functions', () => {
     expect(firstThreeNaturals.item(2)).toBe(3);
     expect(() => { firstThreeNaturals.item(3); })
       .toThrow();
+
+    const emptyStream = new Stream();
+    expect(() => emptyStream.take()).not.toThrow();
   });
 
   it('drops', () => {
@@ -183,6 +203,12 @@ describe('standard functional functions', () => {
     expect(newComments.member(newComment)).toBeTruthy();
     expect(newComments.head()).toBe(newComment);
     expect(newComments.tail().head()).toBe(newestComment);
+  });
+
+  it('should be reinitialized to new Stream if drops empty', () => {
+    const droppedStream = Stream.make(10, 20, 30);
+    droppedStream.drop(100);
+    expect(() => droppedStream.toString()).toThrow(); // indicates that the stream is empty
   });
 
   it('maps', () => {
@@ -204,19 +230,19 @@ describe('standard functional functions', () => {
 
   it('reduces', () => {
     const firstTwentyNaturals = Stream.range(1, 20);
-    const twentiethTriangularNumberWInitial =
-    firstTwentyNaturals.reduce((prior, current) => prior + current, 0);
+    const twentiethTriangularNumberWIinitial =
+      firstTwentyNaturals.reduce((prior, current) => prior + current, 0);
 
     const twentiethTriangularNumber =
-    firstTwentyNaturals.reduce((prior, current) => prior + current);
+      firstTwentyNaturals.reduce((prior, current) => prior + current);
 
     expect(twentiethTriangularNumber).toBe(210);
-    expect(twentiethTriangularNumberWInitial).toBe(210);
+    expect(twentiethTriangularNumberWIinitial).toBe(210);
   });
 
   it('dropsWhile', () => {
-    const someNumbers = Stream.make(-5, -8, -2, 34, 10, -2);
-    const remainingNumbers = someNumbers.dropWhile(x => x < 0);
+    const someSumbers = Stream.make(-5, -8, -2, 34, 10, -2);
+    const remainingNumbers = someSumbers.dropWhile(x => x < 0);
 
     expect(remainingNumbers.head()).toBe(34);
     expect(remainingNumbers.item(1)).toBe(10);
@@ -286,6 +312,58 @@ describe('standard functional functions', () => {
     expect(biggestOfTwo2.item(1)).toBe(12);
     expect(biggestOfTwo2.item(2)).toBe(42);
   });
+
+  it('walks', () => {
+    const initialSteam = Stream.make(10, 20, 30, 40);
+    let sum = 0;
+
+    function doSum(x) {
+      sum += x;
+    }
+
+    initialSteam.walk(doSum);
+    expect(sum).toBe(100);
+  });
+
+  it('forces', () => {
+    let forcedSteam = Stream.make(10, 20, 30, 40);
+
+    forcedSteam.force();
+    expect(forcedSteam.head()).toBe(10);
+
+    forcedSteam = forcedSteam.tail();
+    forcedSteam.force();
+    expect(forcedSteam.head()).toBe(20);
+
+    forcedSteam = forcedSteam.tail();
+    forcedSteam.force();
+    expect(forcedSteam.head()).toBe(30);
+
+    forcedSteam = forcedSteam.tail();
+    forcedSteam.force();
+    expect(forcedSteam.head()).toBe(40);
+  });
+
+  it('concatmaps', () => {
+    const stream = Stream.make(2, 9);
+    const f = x => Stream.make(x * 5, x * 10);
+    let s = stream.concatmap(f);
+
+    s.force();
+    expect(s.head()).toBe(10);
+
+    s = s.tail();
+    s.force();
+    expect(s.head()).toBe(20);
+
+    s = s.tail();
+    s.force();
+    expect(s.head()).toBe(45);
+
+    s = s.tail();
+    s.force();
+    expect(s.head()).toBe(90);
+  });
 });
 
 describe('special numeric stream functions', () => {
@@ -302,5 +380,74 @@ describe('special numeric stream functions', () => {
     expect(firstTenEvens.length()).toBe(10);
     expect(firstTenEvens.head()).toBe(2);
     expect(firstTenEvens.item(9)).toBe(20);
+  });
+
+  it('adds', () => {
+    const firstTenNaturals = Stream.range(1, 10);
+    const firstTenEvens = firstTenNaturals.scale(2);
+    const addedTogether = firstTenNaturals.add(firstTenEvens);
+
+    expect(addedTogether.length()).toBe(10);
+    expect(addedTogether.head()).toBe(3);
+    expect(addedTogether.item(9)).toBe(30);
+  });
+});
+
+describe('Exception handling', () => {
+  it('should throw if you try to get tail() of empty Stream', () => {
+    const emptyStream = new Stream();
+    expect(() => emptyStream.tail()).toThrow();
+  });
+
+  it('should throw if you try to get item() on empty Stream', () => {
+    const emptyStream = new Stream();
+    expect(() => emptyStream.item()).toThrow();
+  });
+
+  it('should throw if you try to access and index that does not exist', () => {
+    const oneIndexStream = Stream.make(1);
+    const outOfRange = 100;
+    expect(() => oneIndexStream.item(outOfRange)).toThrow();
+  });
+
+  it('should throw if reduce is called on empty stream', () => {
+    const emptyStream = new Stream();
+    expect(() => emptyStream.reduce()).toThrow();
+  });
+});
+
+describe('print', () => {
+  beforeEach(() => {
+    spyOn(console, 'log');
+  });
+
+  it('should print the whole stream in console', () => {
+    const firstTenNaturals = Stream.range(1, 10);
+    firstTenNaturals.print();
+    // eslint-disable-next-line no-console
+    expect(console.log).toHaveBeenCalled();
+  });
+  it('should print a part of stream in console', () => {
+    const firstTenNaturals = Stream.range(1, 10);
+    firstTenNaturals.print(5);
+    // eslint-disable-next-line no-console
+    expect(console.log).toHaveBeenCalled();
+  });
+});
+
+describe('Eager streams', () => {
+  it('should construct eager stream', () => {
+    const f = () => [1, 2, 3];
+    const eagerStream = Stream.continuallyEager(f);
+    expect(eagerStream.head()).toEqual([1, 2, 3]);
+  });
+
+  it('should be created with iterateEager', () => {
+    const powersOfTwo = Stream.iterateEager(1, x => x * 2);
+
+    expect(powersOfTwo.item(1)).toBe(2);
+    expect(powersOfTwo.item(2)).toBe(4);
+    expect(powersOfTwo.item(3)).toBe(8);
+    expect(powersOfTwo.item(10)).toBe(1024);
   });
 });
