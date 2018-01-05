@@ -37,7 +37,7 @@
     "build:browser": "browserify src/stream.js --standalone Stream --outfile stream.js",
     "minify": "browserify src/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]",
     "zip": "bestzip --",
-    "eslint": "eslint src/"
+    "eslint": "eslint src/ spec/"
   },
   "directories": {
     "lib": "src"
