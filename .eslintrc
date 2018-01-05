@@ -1,0 +1,12 @@
+{
+  "extends": ["airbnb-base"],
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "env": {
+    "jasmine": true
+  },
+  "rules": {
+    "strict": [2, "global"]
+  }
+}

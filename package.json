@@ -36,7 +36,8 @@
     "test": "istanbul cover jasmine && node external/sendtocodecov.js",
     "build:browser": "browserify src/stream.js --standalone Stream --outfile stream.js",
     "minify": "browserify src/stream.js --standalone Stream --outfile stream.min.js --debug --plugin [ minifyify --map stream.min.js.map --output stream.min.js.map ]",
-    "zip": "bestzip --"
+    "zip": "bestzip --",
+    "eslint": "eslint src/"
   },
   "directories": {
     "lib": "src"
@@ -54,6 +55,9 @@
     "bestzip": "^1.1.2",
     "browserify": "^13.1.1",
     "codecov.io": "^0.1.6",
+    "eslint": "^4.14.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
     "istanbul": "^0.4.0",
     "jasmine": "^2.4.1",
     "minifyify": "^7.1.0"
