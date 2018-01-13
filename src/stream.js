@@ -55,7 +55,6 @@ function Stream(head, tailPromise, wrapper) {
   this.tailPromise = tailPromise;
 }
 
-// TODO: write some unit tests
 Stream.prototype = {
   // This makes it easier to avoid passing around the explicit wrapper
   // when making new streams below
@@ -82,7 +81,7 @@ Stream.prototype = {
     if (this.empty()) {
       throw new Error('Cannot use item() on an empty stream.');
     }
-    var s = this;
+    let s = this;
     while (n != 0) {
       --n;
       try {
@@ -99,8 +98,8 @@ Stream.prototype = {
   },
   length: function() {
     // requires finite stream
-    var s = this;
-    var len = 0;
+    let s = this;
+    let len = 0;
 
     while (!s.empty()) {
       ++len;
@@ -117,17 +116,17 @@ Stream.prototype = {
     if (this.empty()) {
       return stream;
     }
-    var self = this;
+    const self = this;
     return this.create(self.head(), function() {
       return self.tail().append(stream);
     });
   },
   zip: function(/* arguments */) {
-    var args = Array.prototype.slice.call(arguments, 0)
-    var f = args[0];
+    const args = Array.prototype.slice.call(arguments, 0)
+    const f = args[0];
     args.shift();
-    var streams = [this].concat(args);
-    var self = this;
+    const streams = [this].concat(args);
+    const self = this;
 
     // If any streams are empty, return an empty stream
     if (streams.filter(function(x) {
@@ -139,7 +138,7 @@ Stream.prototype = {
     return new Stream(f.apply(null, streams.map(function(x) {
       return x.head();
     })), function() {
-      var tail = self.tail();
+      const tail = self.tail();
       return tail.zip.apply(tail, [f].concat(args.map(function(x) {
         return x.tail();
       })));
@@ -149,7 +148,7 @@ Stream.prototype = {
     if (this.empty()) {
       return this;
     }
-    var self = this;
+    const self = this;
     return this.create(f(this.head()), function() {
       return self.tail().map(f);
     });
@@ -160,9 +159,9 @@ Stream.prototype = {
     }, this.create());
   },
   reduce: function() {
-    var aggregator = arguments[0];
-    var initial,
-      self;
+    const aggregator = arguments[0];
+    let initial;
+    let self;
     if (arguments.length < 2) {
       if (this.empty())
         throw new TypeError('Array length is 0 and no second argument');
@@ -194,7 +193,7 @@ Stream.prototype = {
   },
   force: function() {
     // requires finite stream
-    var stream = this;
+    let stream = this;
     while (!stream.empty()) {
       stream = stream.tail();
     }
@@ -208,8 +207,8 @@ Stream.prototype = {
     if (this.empty()) {
       return this;
     }
-    var h = this.head();
-    var t = this.tail();
+    const h = this.head();
+    const t = this.tail();
     if (f(h)) {
       return this.create(h, function() {
         return t.filter(f);
@@ -224,7 +223,7 @@ Stream.prototype = {
     if (howmany == 0) {
       return this.create();
     }
-    var self = this;
+    const self = this;
     return this.create(this.head(), function() {
       return self.tail().take(howmany - 1);
     });
@@ -232,8 +231,8 @@ Stream.prototype = {
   takeWhile: function(condition) {
     if (this.empty())
       return new Stream();
-    var self = this,
-      result = [];
+    let self = this;
+    const result = [];
 
     while (condition(self.head())) {
       result.push(self.head());
@@ -243,7 +242,7 @@ Stream.prototype = {
     return Stream.fromArray(result);
   },
   drop: function(n) {
-    var self = this;
+    let self = this;
 
     while (n-- > 0) {
 
@@ -260,7 +259,7 @@ Stream.prototype = {
   dropWhile: function(condition) {
     if (this.empty())
       return new Stream();
-    var self = this;
+    let self = this;
 
     while (condition(self.head())) {
       self = self.tail();
@@ -272,7 +271,7 @@ Stream.prototype = {
     return new Stream(self.headValue, self.tailPromise);
   },
   member: function(x) {
-    var self = this;
+    let self = this;
 
     while (!self.empty()) {
       if (self.head() == x) {
@@ -285,7 +284,7 @@ Stream.prototype = {
     return false;
   },
   print: function(n) {
-    var target;
+    let target;
     if (typeof n != 'undefined') {
       target = this.take(n);
     } else {
@@ -326,7 +325,7 @@ Stream.makeOnes = function() {
 
 Stream.makeNaturalNumbers = function() {
   return new Stream(1, function() {
-    var nats = Stream.makeNaturalNumbers();
+    const nats = Stream.makeNaturalNumbers();
     return nats.add(Stream.makeOnes());
   });
 };
@@ -335,7 +334,7 @@ Stream.make = function(/* arguments */) {
   if (arguments.length == 0) {
     return new Stream();
   }
-  var restArguments = Array.prototype.slice.call(arguments, 1);
+  const restArguments = Array.prototype.slice.call(arguments, 1);
   return new Stream(arguments[0], function() {
     return Stream.make.apply(null, restArguments);
   });
@@ -398,7 +397,7 @@ Stream.iterateEager = function(x, f) {
 // Like fromArray, this is Eager-only since it would needlessly copy
 // parts of the array if Lazy was used
 Stream.cycle = function(array) {
-  var promise_generator = function(array, index) {
+  const promise_generator = function(array, index) {
     if (index >= array.length)
       index = 0;
     return function() {
