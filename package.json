@@ -1,6 +1,6 @@
 {
   "name": "stream.js",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Lazy streams.",
   "repository": {
     "git": "https://github.com/dionyziz/stream.js"
@@ -29,6 +29,11 @@
       "name": "Jon Ege Ronnenberg",
       "email": "jon.ronnenberg+stream.js@gmail.com",
       "web": "https://keybase.io/dotnetcarpenter"
+    },
+    {
+      "name": "George Gkasdrogkas",
+      "email": "georgegkas@gmail.com",
+      "web": "https://codepen.io/georgegkas"
     }
   ],
   "main": "src/stream.js",
@@ -43,7 +48,7 @@
     "lib": "src"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6"
   },
   "keywords": [
     "stream",
@@ -55,7 +60,7 @@
     "bestzip": "^1.1.2",
     "browserify": "^13.1.1",
     "codecov.io": "^0.1.6",
-    "eslint": "^4.14.0",
+    "eslint": "^4.15.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "istanbul": "^0.4.0",
