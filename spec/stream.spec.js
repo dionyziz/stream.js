@@ -451,3 +451,14 @@ describe('Eager streams', () => {
     expect(powersOfTwo.item(10)).toBe(1024);
   });
 });
+
+describe('Iteratable stream', () => {
+  it('should provide an iterator', () => {
+    const stream = Stream.make(1, 2, 3);
+    const iterator = stream[Symbol.iterator]();
+    expect(iterator.next().value).toBe(1);
+    expect(iterator.next().value).toBe(2);
+    expect(iterator.next().value).toBe(3);
+    expect(iterator.next().value).toBe(undefined);
+  });
+});
