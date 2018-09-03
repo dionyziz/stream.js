@@ -303,6 +303,21 @@ Stream.prototype = {
     // requires finite stream
     return '[stream head: ' + this.head() + '; tail: ' + this.tail() + ']';
   },
+  [Symbol.iterator]: function () {
+    let self = this;
+    return {
+      next() {
+        if (self.empty()) {
+          return { value: undefined, done: true };
+        }
+
+        const head = self.head();
+        self = self.tail();
+
+        return { value: head, done: false };
+      },
+    };
+  },
 };
 
 function _continually(callback, wrapper) {
