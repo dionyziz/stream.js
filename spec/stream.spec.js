@@ -461,4 +461,13 @@ describe('Iteratable stream', () => {
     expect(iterator.next().value).toBe(3);
     expect(iterator.next().value).toBe(undefined);
   });
+
+  it('should eventually stop looping', () => {
+    const stream = Stream.make(1, 2, 3);
+
+    // eslint-disable-next-line
+    for (const value of stream) {
+      expect(value).toBeDefined();
+    }
+  });
 });
