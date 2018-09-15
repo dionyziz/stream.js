@@ -1,3 +1,5 @@
+/*! stream.js 1.1.2 (c)2011-2018 Dionysis Zindros @license MIT*/
+
 'use strict';
 
 function Lazy(func) {
